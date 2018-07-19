@@ -55,8 +55,13 @@ typedef struct {
 
     PCIBus *pci_bus;
 
+    /* ACPI device for hotplug and PM */
+    HotplugHandler *acpi_dev;
+
     /* RAM size */
     ram_addr_t below_4g_mem_size;
+
+    DeviceState *acpi;
 } VirtMachineState;
 
 #define VIRT_MACHINE_FW "fw"
