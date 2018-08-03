@@ -62,7 +62,7 @@ typedef struct {
     HotplugHandler *acpi_dev;
 
     /* RAM size */
-    ram_addr_t below_4g_mem_size;
+    ram_addr_t below_4g_mem_size, above_4g_mem_size;
 
     DeviceState *acpi;
 } VirtMachineState;
