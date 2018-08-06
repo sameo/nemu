@@ -123,15 +123,10 @@ static void virt_machine_done(Notifier *notifier, void *data)
 {
     VirtMachineState *vms = container_of(notifier,
                                           VirtMachineState, machine_done);
-    AcpiConfiguration *conf;
     MachineState *ms = MACHINE(vms);
     MachineClass *mc = MACHINE_GET_CLASS(ms);
 
-    conf = g_malloc0(sizeof(*conf));
-    vms->acpi_configuration = conf;
-
-    acpi_conf_virt_init(MACHINE(vms), conf);
-    mc->firmware_build_methods.acpi.setup(ms, conf);
+    mc->firmware_build_methods.acpi.setup(ms, vms->acpi_configuration);
 }
 
 static void virt_gsi_handler(void *opaque, int n, int level)
@@ -216,6 +211,8 @@ static void virt_machine_state_init(MachineState *machine)
     object_property_set_link(OBJECT(machine), OBJECT(vms->acpi),
                              "acpi-device", &error_abort);
 
+    vms->acpi_configuration = g_new0(AcpiConfiguration, 1);
+
     if (vms->fw) {
         fw_cfg = fw_cfg_init(machine, smp_cpus, mc->possible_cpu_arch_ids(machine), vms->apic_id_limit);
         rom_set_fw(fw_cfg);
@@ -231,10 +228,14 @@ static void virt_machine_state_init(MachineState *machine)
         }
 
         vms->fw_cfg = fw_cfg;
+        acpi_conf_virt_init(MACHINE(vms), vms->acpi_configuration);
+
         if (linux_boot) {
             load_linux_bzimage(MACHINE(vms), vms->acpi_configuration, fw_cfg);
         }
     } else {
+        acpi_conf_virt_init(MACHINE(vms), vms->acpi_configuration);
+
         if (linux_boot) {
             load_linux_efi(MACHINE(vms));
         }
