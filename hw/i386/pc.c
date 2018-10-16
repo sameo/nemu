@@ -74,6 +74,7 @@
 #include "hw/nmi.h"
 #include "hw/i386/intel_iommu.h"
 #include "hw/net/ne2000-isa.h"
+#include "hw/i386/acpi.h"
 
 /* debug PC/ISA interrupts */
 //#define DEBUG_IRQ
@@ -2436,6 +2437,14 @@ static void pc_machine_class_init(ObjectClass *oc, void *data)
     hc->unplug = pc_machine_device_unplug_cb;
     nc->nmi_monitor_handler = x86_nmi;
     mc->default_cpu_type = TARGET_DEFAULT_CPU_TYPE;
+
+    /* Firmware building handler */
+    mc->firmware_build_methods.acpi.madt = build_madt;
+    mc->firmware_build_methods.acpi.rsdp = build_rsdp_rsdt;
+    mc->firmware_build_methods.acpi.setup = acpi_setup;
+    mc->firmware_build_methods.acpi.mcfg = build_mcfg;
+    mc->firmware_build_methods.acpi.srat = build_srat;
+    mc->firmware_build_methods.acpi.slit = build_slit;
 
     object_class_property_add(oc, PC_MACHINE_DEVMEM_REGION_SIZE, "int",
         pc_machine_get_device_memory_region_size, NULL,
